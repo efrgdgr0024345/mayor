@@ -2,6 +2,8 @@
   {
     "parcel_id": "FRE-001",
     "location": "North Fremantle",
+    "latitude": -32.0356,
+    "longitude": 115.7569,
     "size_m2": 1800,
     "zoning": "Mixed Use",
     "ownership_type": "public",
@@ -15,6 +17,8 @@
   {
     "parcel_id": "FRE-002",
     "location": "Fremantle CBD Fringe",
+    "latitude": -32.0554,
+    "longitude": 115.7445,
     "size_m2": 2600,
     "zoning": "Residential",
     "ownership_type": "private",
@@ -28,6 +32,8 @@
   {
     "parcel_id": "FRE-003",
     "location": "O'Connor",
+    "latitude": -32.0648,
+    "longitude": 115.7938,
     "size_m2": 4200,
     "zoning": "Light Industry",
     "ownership_type": "public",
@@ -41,6 +47,8 @@
   {
     "parcel_id": "FRE-004",
     "location": "Beaconsfield",
+    "latitude": -32.0679,
+    "longitude": 115.7681,
     "size_m2": 3100,
     "zoning": "Community Purpose",
     "ownership_type": "public",
