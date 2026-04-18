@@ -11,13 +11,6 @@ $error = null;
 $result = null;
 $scenarios = [];
 
-$parcelMapLayout = [
-    'FRE-001' => ['x' => 32, 'y' => 25, 'width' => 12, 'height' => 10],
-    'FRE-002' => ['x' => 44, 'y' => 37, 'width' => 10, 'height' => 9],
-    'FRE-003' => ['x' => 58, 'y' => 68, 'width' => 14, 'height' => 11],
-    'FRE-004' => ['x' => 52, 'y' => 54, 'width' => 11, 'height' => 10],
-];
-
 try {
     $store = new JsonDataStore(__DIR__ . '/data');
     $scenarios = $store->loadScenarios();
@@ -83,6 +76,7 @@ function buildRuleNotes(array $row, array $scenario): array
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LSIP - Land Suitability Intelligence Platform</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <style>
     body { font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif; margin: 0; background: #080c12; color: #d6dce8; }
     .container { max-width: 1200px; margin: 24px auto; padding: 0 16px 24px; }
@@ -100,61 +94,26 @@ function buildRuleNotes(array $row, array $scenario): array
       border: 1px solid #2a374c;
       border-radius: 12px;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 20%, #121a26, #090e15 72%);
+      background: #090e15;
     }
-    .map-background {
-      position: absolute;
-      inset: 0;
-      background-position: center;
-      background-size: cover;
-      opacity: 0.55;
-      filter: contrast(1.08) saturate(0.2) brightness(0.72);
-    }
-    .map-vector-layer {
-      position: absolute;
-      inset: 0;
-      background:
-        repeating-linear-gradient(36deg, rgba(120, 132, 148, 0.1) 0px, rgba(120, 132, 148, 0.1) 1px, transparent 1px, transparent 34px),
-        repeating-linear-gradient(-50deg, rgba(84, 95, 112, 0.08) 0px, rgba(84, 95, 112, 0.08) 1px, transparent 1px, transparent 58px),
-        linear-gradient(180deg, rgba(17, 25, 35, 0.08), rgba(12, 17, 25, 0.35));
-      opacity: 0.55;
-      pointer-events: none;
-    }
-    .map-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(5, 9, 16, 0.3), rgba(5, 9, 16, 0.62));
-      pointer-events: none;
-    }
-    .parcel-block {
-      position: absolute;
-      border: 1px solid #5e6d83;
-      background: rgba(122, 136, 160, 0.16);
-      color: #fff;
-      border-radius: 4px;
+    #leaflet-map { width: 100%; min-height: 460px; }
+    .leaflet-container { background: #090e15; }
+    .parcel-marker {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid #5e6d83;
+      background: rgba(122, 136, 160, 0.88);
+      box-shadow: 0 0 0 1px rgba(0,0,0,.35);
       cursor: pointer;
       transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.3);
     }
-    .parcel-block:hover,
-    .parcel-block.is-active {
-      transform: translateY(-1px);
-      box-shadow: 0 0 0 1px rgba(124, 214, 255, 0.72), 0 0 18px rgba(79, 195, 247, 0.45), 0 8px 20px rgba(0,0,0,.35);
-    }
-    .parcel-label {
-      position: absolute;
-      left: 6px;
-      top: 4px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .02em;
-      text-shadow: 0 1px 2px rgba(0,0,0,.7);
-    }
-    .parcel-block.dimmed { opacity: .28; }
-    .parcel-block.standard-eligible { border-color: #5ce18a; background: rgba(92, 225, 138, 0.24); }
-    .parcel-block.standard-service { border-color: #3eb9ff; background: rgba(62, 185, 255, 0.24); }
-    .parcel-block.standard-policy { border-color: #d58bff; background: rgba(213, 139, 255, 0.24); }
-    .parcel-block.standard-shortlist { border-color: #ffc957; background: rgba(255, 201, 87, 0.24); }
+    .parcel-marker.standard-eligible { border-color: #5ce18a; }
+    .parcel-marker.standard-service { border-color: #3eb9ff; }
+    .parcel-marker.standard-policy { border-color: #d58bff; }
+    .parcel-marker.standard-shortlist { border-color: #ffc957; }
+    .parcel-marker.is-active { transform: scale(1.2); box-shadow: 0 0 0 2px rgba(124, 214, 255, 0.75); }
+    .parcel-marker.dimmed { opacity: 0.28; }
     .map-caption {
       position: absolute;
       left: 12px;
@@ -167,6 +126,8 @@ function buildRuleNotes(array $row, array $scenario): array
       border-radius: 8px;
       padding: 8px 10px;
       backdrop-filter: blur(2px);
+      pointer-events: none;
+      z-index: 400;
     }
     .controls { display: grid; gap: 8px; }
     .control-chip {
@@ -196,7 +157,8 @@ function buildRuleNotes(array $row, array $scenario): array
 
     @media (max-width: 960px) {
       .visual-grid { grid-template-columns: 1fr; }
-      .map-shell { min-height: 360px; }
+      .map-shell,
+      #leaflet-map { min-height: 360px; }
     }
   </style>
 </head>
@@ -238,11 +200,17 @@ function buildRuleNotes(array $row, array $scenario): array
       $mapRows = [];
       foreach ($allRows as $row) {
           $parcelId = (string) (($row['parcel']['parcel_id'] ?? ''));
-          if ($parcelId === '' || !isset($parcelMapLayout[$parcelId])) {
+          if ($parcelId === '') {
               continue;
           }
 
           $parcel = $row['parcel'] ?? [];
+          $latitude = (float) ($parcel['latitude'] ?? 0.0);
+          $longitude = (float) ($parcel['longitude'] ?? 0.0);
+          if ($latitude === 0.0 && $longitude === 0.0) {
+              continue;
+          }
+
           $constraints = $parcel['constraints'] ?? [];
           $constraintCount = is_array($constraints) ? count($constraints) : 0;
           $serviceReadiness = (float) ($parcel['service_readiness_score'] ?? 0.0);
@@ -251,6 +219,8 @@ function buildRuleNotes(array $row, array $scenario): array
           $mapRows[] = [
               'parcel_id' => $parcelId,
               'location' => (string) ($parcel['location'] ?? '-'),
+              'latitude' => $latitude,
+              'longitude' => $longitude,
               'final_score' => (float) ($row['final_score'] ?? 0.0),
               'eligible' => (($row['eligible'] ?? false) === true),
               'service_standard' => $serviceReadiness >= 0.75,
@@ -258,49 +228,17 @@ function buildRuleNotes(array $row, array $scenario): array
               'shortlist_standard' => isset($shortlistIds[$parcelId]),
               'constraint_count' => $constraintCount,
               'rule_notes' => buildRuleNotes($row, $result['scenario'] ?? []),
-          ] + $parcelMapLayout[$parcelId];
+          ];
       }
     ?>
 
     <div class="panel grid visual-grid">
       <div>
         <h2>Cadastral suitability map</h2>
-        <p>Attach a basemap image, then highlight parcel blocks by scenario standards. Click a parcel block for characteristics that rule it in/out.</p>
-        <label>
-          Basemap image URL (optional)
-          <input id="basemap-url" type="url" placeholder="https://.../map-image.png" autocomplete="off">
-        </label>
-        <div class="map-shell" id="map-shell" aria-label="Parcel suitability map">
-          <div class="map-background" id="map-background"></div>
-          <div class="map-vector-layer" aria-hidden="true"></div>
-          <?php foreach ($mapRows as $mapRow): ?>
-            <?php
-                $classNames = ['parcel-block'];
-                if ($mapRow['eligible']) {
-                    $classNames[] = 'standard-eligible';
-                }
-                if ($mapRow['service_standard']) {
-                    $classNames[] = 'standard-service';
-                }
-                if ($mapRow['policy_standard']) {
-                    $classNames[] = 'standard-policy';
-                }
-                if ($mapRow['shortlist_standard']) {
-                    $classNames[] = 'standard-shortlist';
-                }
-            ?>
-            <button
-              type="button"
-              class="<?= htmlspecialchars(implode(' ', $classNames), ENT_QUOTES, 'UTF-8') ?>"
-              style="left: <?= (float) $mapRow['x'] ?>%; top: <?= (float) $mapRow['y'] ?>%; width: <?= (float) $mapRow['width'] ?>%; height: <?= (float) $mapRow['height'] ?>%;"
-              data-parcel='<?= htmlspecialchars((string) json_encode($mapRow, JSON_THROW_ON_ERROR), ENT_QUOTES, 'UTF-8') ?>'
-              aria-label="<?= htmlspecialchars((string) ($mapRow['parcel_id'] . ' in ' . $mapRow['location']), ENT_QUOTES, 'UTF-8') ?>"
-            >
-              <span class="parcel-label"><?= htmlspecialchars((string) $mapRow['parcel_id'], ENT_QUOTES, 'UTF-8') ?></span>
-            </button>
-          <?php endforeach; ?>
-          <div class="map-overlay" aria-hidden="true"></div>
-          <div class="map-caption">Blocks represent cadastral parcels in the scenario. Color edges indicate standards met; dimmed blocks are filtered out.</div>
+        <p>Interactive basemap loads from OpenStreetMap tiles and plots dataset parcels as map markers. Click a marker to view rule details.</p>
+        <div class="map-shell" aria-label="Parcel suitability map">
+          <div id="leaflet-map"></div>
+          <div class="map-caption">Markers represent parcels in the selected scenario. Marker outlines indicate standards met; dimmed markers are filtered out.</div>
         </div>
       </div>
       <div class="controls">
@@ -311,7 +249,7 @@ function buildRuleNotes(array $row, array $scenario): array
         <label class="control-chip"><input type="checkbox" class="standard-filter" value="shortlist" checked><span class="swatch swatch-shortlist"></span>Scenario shortlist (Top N)</label>
 
         <h3>Selected parcel characteristics</h3>
-        <p id="selected-summary">Click a parcel block to view what rules it in or out.</p>
+        <p id="selected-summary">Click a marker to view what rules it in or out.</p>
         <ul id="selected-characteristics" class="characteristics"></ul>
       </div>
     </div>
@@ -351,31 +289,20 @@ function buildRuleNotes(array $row, array $scenario): array
       </table>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
       (() => {
-        const mapBackground = document.getElementById('map-background');
-        const basemapUrlInput = document.getElementById('basemap-url');
-        const blocks = Array.from(document.querySelectorAll('.parcel-block'));
+        const parcelRows = <?= json_encode($mapRows, JSON_THROW_ON_ERROR) ?>;
         const filters = Array.from(document.querySelectorAll('.standard-filter'));
         const selectedSummary = document.getElementById('selected-summary');
         const selectedCharacteristics = document.getElementById('selected-characteristics');
+        const markers = [];
 
-        const defaultMapImage = 'https://a.basemaps.cartocdn.com/dark_all/13/14417/10211.png';
-        mapBackground.style.backgroundImage = `url(${defaultMapImage})`;
-
-        basemapUrlInput.addEventListener('change', () => {
-          const value = basemapUrlInput.value.trim();
-          mapBackground.style.backgroundImage = value === '' ? `url(${defaultMapImage})` : `url(${value})`;
-        });
-
-        const parseParcelData = (block) => {
-          const payload = block.getAttribute('data-parcel') || '{}';
-          try {
-            return JSON.parse(payload);
-          } catch (error) {
-            return {};
-          }
-        };
+        const map = L.map('leaflet-map', { zoomControl: true });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
         const standardMatch = (parcel, standard) => {
           if (standard === 'eligible') return Boolean(parcel.eligible);
@@ -387,10 +314,9 @@ function buildRuleNotes(array $row, array $scenario): array
 
         const refreshFilterState = () => {
           const activeStandards = filters.filter((input) => input.checked).map((input) => input.value);
-          blocks.forEach((block) => {
-            const parcel = parseParcelData(block);
+          markers.forEach(({ parcel, element }) => {
             const visible = activeStandards.some((standard) => standardMatch(parcel, standard));
-            block.classList.toggle('dimmed', !visible);
+            element.classList.toggle('dimmed', !visible);
           });
         };
 
@@ -404,22 +330,57 @@ function buildRuleNotes(array $row, array $scenario): array
           });
         };
 
-        blocks.forEach((block) => {
-          block.addEventListener('click', () => {
-            blocks.forEach((candidate) => candidate.classList.remove('is-active'));
-            block.classList.add('is-active');
-            const parcel = parseParcelData(block);
+        const classNamesForParcel = (parcel) => {
+          const classes = ['parcel-marker'];
+          if (parcel.eligible) classes.push('standard-eligible');
+          if (parcel.service_standard) classes.push('standard-service');
+          if (parcel.policy_standard) classes.push('standard-policy');
+          if (parcel.shortlist_standard) classes.push('standard-shortlist');
+          return classes.join(' ');
+        };
+
+        parcelRows.forEach((parcel) => {
+          const icon = L.divIcon({
+            className: '',
+            html: `<button type="button" class="${classNamesForParcel(parcel)}" aria-label="${parcel.parcel_id} in ${parcel.location}"></button>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+          });
+          const marker = L.marker([parcel.latitude, parcel.longitude], { icon }).addTo(map);
+          marker.bindTooltip(parcel.parcel_id, { direction: 'top', offset: [0, -8] });
+
+          const markerElement = marker.getElement();
+          if (!markerElement) {
+            return;
+          }
+
+          const element = markerElement.querySelector('.parcel-marker');
+          if (!element) {
+            return;
+          }
+
+          element.addEventListener('click', () => {
+            markers.forEach((candidate) => candidate.element.classList.remove('is-active'));
+            element.classList.add('is-active');
             renderParcelDetails(parcel);
           });
+          markers.push({ parcel, element });
         });
+
+        const bounds = L.latLngBounds(parcelRows.map((parcel) => [parcel.latitude, parcel.longitude]));
+        if (bounds.isValid()) {
+          map.fitBounds(bounds.pad(0.25));
+        } else {
+          map.setView([-32.055, 115.768], 12);
+        }
 
         filters.forEach((filterInput) => {
           filterInput.addEventListener('change', refreshFilterState);
         });
 
         refreshFilterState();
-        if (blocks.length > 0) {
-          blocks[0].click();
+        if (markers.length > 0) {
+          markers[0].element.click();
         }
       })();
     </script>
