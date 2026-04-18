@@ -1,0 +1,49 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "micro_15",
+      "name": "15-person micro village",
+      "minimum_size_m2": 1200,
+      "preferred_zoning": ["Mixed Use", "Residential", "Community Purpose"],
+      "excluded_constraints": ["contamination_possible"],
+      "max_constraint_count": 2,
+      "weights": {
+        "planning_compatibility": 0.35,
+        "size_usability": 0.2,
+        "location_logic": 0.25,
+        "constraint_burden": 0.1,
+        "ownership_likelihood": 0.1
+      }
+    },
+    {
+      "scenario_id": "transitional_30",
+      "name": "30-person transitional village",
+      "minimum_size_m2": 2000,
+      "preferred_zoning": ["Mixed Use", "Community Purpose", "Residential"],
+      "excluded_constraints": ["contamination_possible"],
+      "max_constraint_count": 2,
+      "weights": {
+        "planning_compatibility": 0.3,
+        "size_usability": 0.25,
+        "location_logic": 0.2,
+        "constraint_burden": 0.1,
+        "ownership_likelihood": 0.15
+      }
+    },
+    {
+      "scenario_id": "village_100",
+      "name": "100-person village",
+      "minimum_size_m2": 4500,
+      "preferred_zoning": ["Mixed Use", "Community Purpose"],
+      "excluded_constraints": ["contamination_possible", "flood_moderate"],
+      "max_constraint_count": 1,
+      "weights": {
+        "planning_compatibility": 0.25,
+        "size_usability": 0.3,
+        "location_logic": 0.15,
+        "constraint_burden": 0.1,
+        "ownership_likelihood": 0.2
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "ownership_scores": {
+    "public": 1.0,
+    "private": 0.55,
+    "unknown": 0.35
+  },
+  "constraint_penalties": {
+    "heritage_buffer": 0.18,
+    "flood_moderate": 0.15,
+    "contamination_possible": 0.45
+  },
+  "political_sensitivity": {
+    "residential_edge_lt_30m": 0.28,
+    "residential_edge_30_to_80m": 0.18,
+    "residential_edge_gte_80m": 0.08
+  }
+}
