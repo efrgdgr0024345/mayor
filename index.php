@@ -11,31 +11,11 @@ $error = null;
 $result = null;
 $scenarios = [];
 
-$parcelGeometry = [
-    'FRE-001' => [
-        [-32.0317, 115.7442],
-        [-32.0317, 115.7479],
-        [-32.0292, 115.7479],
-        [-32.0292, 115.7442],
-    ],
-    'FRE-002' => [
-        [-32.0582, 115.7556],
-        [-32.0582, 115.7585],
-        [-32.0557, 115.7585],
-        [-32.0557, 115.7556],
-    ],
-    'FRE-003' => [
-        [-32.0828, 115.7841],
-        [-32.0828, 115.7882],
-        [-32.0799, 115.7882],
-        [-32.0799, 115.7841],
-    ],
-    'FRE-004' => [
-        [-32.0702, 115.7712],
-        [-32.0702, 115.7752],
-        [-32.0674, 115.7752],
-        [-32.0674, 115.7712],
-    ],
+$parcelMapLayout = [
+    'FRE-001' => ['x' => 32, 'y' => 25, 'width' => 12, 'height' => 10],
+    'FRE-002' => ['x' => 44, 'y' => 37, 'width' => 10, 'height' => 9],
+    'FRE-003' => ['x' => 58, 'y' => 68, 'width' => 14, 'height' => 11],
+    'FRE-004' => ['x' => 52, 'y' => 54, 'width' => 11, 'height' => 10],
 ];
 
 try {
@@ -66,9 +46,7 @@ function buildRuleNotes(array $row, array $scenario): array
     $notes = [];
     $parcel = $row['parcel'] ?? [];
 
-    $notes[] = (($row['eligible'] ?? false) === true)
-        ? 'Included: passes mandatory scenario eligibility checks.'
-        : 'Excluded: fails one or more mandatory eligibility checks.';
+    $notes[] = (($row['eligible'] ?? false) === true) ? 'Included: clears all scenario eligibility checks.' : 'Excluded: fails one or more mandatory eligibility checks.';
 
     $size = (float) ($parcel['size_m2'] ?? 0);
     $minimum = (float) ($scenario['minimum_size_m2'] ?? 0);
@@ -82,20 +60,20 @@ function buildRuleNotes(array $row, array $scenario): array
     $constraintCount = is_array($constraints) ? count($constraints) : 0;
     $maxConstraintCount = (int) ($scenario['max_constraint_count'] ?? PHP_INT_MAX);
     if ($constraintCount <= $maxConstraintCount) {
-        $notes[] = sprintf('Included by constraints: %d/%d allowed.', $constraintCount, $maxConstraintCount);
+        $notes[] = sprintf('Included on constraints: %d/%d allowed constraints.', $constraintCount, $maxConstraintCount);
     } else {
-        $notes[] = sprintf('Excluded by constraints: %d exceeds maximum %d.', $constraintCount, $maxConstraintCount);
+        $notes[] = sprintf('Excluded on constraints: %d constraints exceed limit %d.', $constraintCount, $maxConstraintCount);
     }
 
     $serviceReadiness = (float) ($parcel['service_readiness_score'] ?? 0.0);
     $notes[] = $serviceReadiness >= 0.75
-        ? 'Included in Service Readiness layer (>= 0.75).'
-        : 'Excluded from Service Readiness layer (< 0.75).';
+        ? 'Included by service readiness standard (>=0.75).'
+        : 'Not in high-service-readiness standard (<0.75).';
 
     $policy = (float) ($parcel['policy_alignment_score'] ?? 0.0);
     $notes[] = $policy >= 0.75
-        ? 'Included in Policy Fit layer (>= 0.75).'
-        : 'Excluded from Policy Fit layer (< 0.75).';
+        ? 'Included by policy-fit standard (>=0.75).'
+        : 'Not in policy-fit standard (<0.75).';
 
     return $notes;
 }
@@ -112,82 +90,108 @@ function buildRuleNotes(array $row, array $scenario): array
     crossorigin=""
   >
   <style>
-    body { font-family: Inter, Arial, sans-serif; margin: 0; background: #080b10; color: #d8dde7; }
-    .container { max-width: 1250px; margin: 20px auto; padding: 0 16px 24px; }
-    .panel { background: #0f141d; border: 1px solid #1e2734; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.35); padding: 16px; margin-bottom: 16px; }
-    h1, h2, h3 { margin-top: 0; color: #f2f5fb; }
-    p { color: #9ca7b6; }
-    code { color: #8ac8ff; }
-
+    body { font-family: Arial, sans-serif; margin: 0; background: #f6f7fb; color: #1d2330; }
+    .container { max-width: 1200px; margin: 24px auto; padding: 0 16px 24px; }
+    .panel { background: #fff; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.06); padding: 16px; margin-bottom: 16px; }
+    h1, h2, h3 { margin-top: 0; }
     form { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
-    label { display: flex; flex-direction: column; font-size: 13px; gap: 6px; color: #b6c1d2; }
-    select, input, button {
-      padding: 10px;
-      border: 1px solid #2a3647;
-      border-radius: 8px;
-      font-size: 14px;
-      background: #0a1119;
-      color: #e8edf6;
-    }
-    button { background: #133e67; border-color: #19507f; cursor: pointer; }
-
-    .map-layout { display: grid; grid-template-columns: 280px 1fr; gap: 14px; }
-    .left-controls {
-      background: #0a1018;
-      border: 1px solid #1d2734;
-      border-radius: 10px;
-      padding: 12px;
-      display: grid;
-      gap: 12px;
-      align-content: start;
-    }
-    .layer-option {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 8px;
-      border: 1px solid #1e2a3a;
-      border-radius: 8px;
-      background: #0d1621;
-    }
-    .layer-option small { color: #8393a8; display: block; margin-top: 2px; }
-
-    #map {
-      min-height: 560px;
-      border: 1px solid #1b2430;
-      border-radius: 10px;
+    label { display: flex; flex-direction: column; font-size: 14px; gap: 6px; }
+    select, input, button { padding: 10px; border: 1px solid #cfd4e3; border-radius: 8px; font-size: 14px; }
+    button { background: #2f6fed; color: #fff; cursor: pointer; }
+    .grid { display: grid; gap: 16px; }
+    .visual-grid { grid-template-columns: 2fr 1fr; align-items: start; }
+    .map-shell {
+      position: relative;
+      min-height: 460px;
+      border: 1px solid #1f2738;
+      border-radius: 12px;
       overflow: hidden;
-      background: #090d13;
+      background: radial-gradient(circle at 50% 20%, #182233, #0b1018 72%);
     }
-
-    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .details-card {
-      border: 1px solid #1c2735;
+    .map-background {
+      position: absolute;
+      inset: 0;
+      background-position: center;
+      background-size: cover;
+      opacity: 0.42;
+      filter: contrast(1.1) saturate(0.35) brightness(0.9);
+    }
+    .map-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 9, 16, 0.2), rgba(5, 9, 16, 0.5));
+      pointer-events: none;
+    }
+    .parcel-block {
+      position: absolute;
+      border: 2px solid #8f97a9;
+      background: rgba(130, 138, 158, 0.12);
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.3);
+    }
+    .parcel-block:hover,
+    .parcel-block.is-active {
+      transform: translateY(-1px);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.22), 0 8px 20px rgba(0,0,0,.35);
+    }
+    .parcel-label {
+      position: absolute;
+      left: 6px;
+      top: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      text-shadow: 0 1px 2px rgba(0,0,0,.7);
+    }
+    .parcel-block.dimmed { opacity: .28; }
+    .parcel-block.standard-eligible { border-color: #5ce18a; background: rgba(92, 225, 138, 0.24); }
+    .parcel-block.standard-service { border-color: #3eb9ff; background: rgba(62, 185, 255, 0.24); }
+    .parcel-block.standard-policy { border-color: #d58bff; background: rgba(213, 139, 255, 0.24); }
+    .parcel-block.standard-shortlist { border-color: #ffc957; background: rgba(255, 201, 87, 0.24); }
+    .map-caption {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      color: #cfd9ec;
+      font-size: 12px;
+      background: rgba(6, 10, 16, 0.65);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: 8px 10px;
+      backdrop-filter: blur(2px);
+    }
+    .controls { display: grid; gap: 8px; }
+    .control-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #dce2ef;
       border-radius: 10px;
-      background: #0a1018;
-      padding: 12px;
+      padding: 8px 10px;
+      background: #fbfcff;
     }
-    .characteristics { margin: 0; padding-left: 18px; display: grid; gap: 6px; color: #b5c0d1; }
-
+    .swatch { width: 14px; height: 14px; border-radius: 3px; border: 2px solid transparent; }
+    .swatch-eligible { border-color: #5ce18a; background: rgba(92, 225, 138, 0.24); }
+    .swatch-service { border-color: #3eb9ff; background: rgba(62, 185, 255, 0.24); }
+    .swatch-policy { border-color: #d58bff; background: rgba(213, 139, 255, 0.24); }
+    .swatch-shortlist { border-color: #ffc957; background: rgba(255, 201, 87, 0.24); }
+    .characteristics { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+    .characteristics li { line-height: 1.35; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 10px; border-bottom: 1px solid #1c2634; text-align: left; vertical-align: top; }
     .score { font-weight: bold; color: #8fd5ff; }
     .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
-    .ok { background: rgba(87, 222, 143, .2); color: #66e6a1; border: 1px solid rgba(102,230,161,.35); }
-    .bad { background: rgba(255, 116, 116, .2); color: #ff8f8f; border: 1px solid rgba(255,143,143,.35); }
-    .error { color: #ff8f8f; font-weight: 600; }
+    .ok { background: #e9f9ef; color: #1c7d3a; }
+    .bad { background: #ffecec; color: #ba2d2d; }
+    .error { color: #ba2d2d; font-weight: 600; }
 
-    .leaflet-popup-content-wrapper,
-    .leaflet-popup-tip {
-      background: #0d1520;
-      color: #dce3f2;
-      border: 1px solid #243143;
-    }
-
-    @media (max-width: 980px) {
-      .map-layout { grid-template-columns: 1fr; }
-      .meta-grid { grid-template-columns: 1fr; }
-      #map { min-height: 460px; }
+    @media (max-width: 960px) {
+      .visual-grid { grid-template-columns: 1fr; }
+      .map-shell { min-height: 360px; }
     }
   </style>
 </head>
@@ -228,80 +232,81 @@ function buildRuleNotes(array $row, array $scenario): array
 
       $mapRows = [];
       foreach ($allRows as $row) {
-          $parcel = is_array($row['parcel'] ?? null) ? $row['parcel'] : [];
-          $parcelId = (string) ($parcel['parcel_id'] ?? '');
-          if ($parcelId === '' || !isset($parcelGeometry[$parcelId])) {
+          $parcelId = (string) (($row['parcel']['parcel_id'] ?? ''));
+          if ($parcelId === '' || !isset($parcelMapLayout[$parcelId])) {
               continue;
           }
 
-          $constraints = is_array($parcel['constraints'] ?? null) ? $parcel['constraints'] : [];
+          $parcel = $row['parcel'] ?? [];
+          $constraints = $parcel['constraints'] ?? [];
+          $constraintCount = is_array($constraints) ? count($constraints) : 0;
+          $serviceReadiness = (float) ($parcel['service_readiness_score'] ?? 0.0);
+          $policyAlignment = (float) ($parcel['policy_alignment_score'] ?? 0.0);
+
           $mapRows[] = [
               'parcel_id' => $parcelId,
               'location' => (string) ($parcel['location'] ?? '-'),
-              'coordinates' => $parcelGeometry[$parcelId],
+              'final_score' => (float) ($row['final_score'] ?? 0.0),
               'eligible' => (($row['eligible'] ?? false) === true),
+              'service_standard' => $serviceReadiness >= 0.75,
+              'policy_standard' => $policyAlignment >= 0.75,
               'shortlist_standard' => isset($shortlistIds[$parcelId]),
-              'service_standard' => ((float) ($parcel['service_readiness_score'] ?? 0.0)) >= 0.75,
-              'policy_standard' => ((float) ($parcel['policy_alignment_score'] ?? 0.0)) >= 0.75,
-              'constraints_present' => count($constraints) > 0,
-              'constraints' => $constraints,
-              'distance_to_residential_edge_m' => (float) ($parcel['distance_to_residential_edge_m'] ?? 0),
-              'final_score' => (float) ($row['final_score'] ?? 0),
+              'constraint_count' => $constraintCount,
               'rule_notes' => buildRuleNotes($row, $result['scenario'] ?? []),
-          ];
+          ] + $parcelMapLayout[$parcelId];
       }
     ?>
 
-    <div class="panel">
-      <h2>Interactive cadastral map</h2>
-      <p>Use the left layer toggles to show or hide scenario overlays. Click any parcel polygon on the map to inspect rule-in/rule-out characteristics.</p>
-      <div class="map-layout">
-        <div class="left-controls">
-          <h3>Layers</h3>
-          <label class="layer-option">
-            <input type="checkbox" class="layer-toggle" data-layer="eligible" checked>
-            <span>Eligible Parcels<small>Bright cyan polygons for parcels passing eligibility checks.</small></span>
-          </label>
-          <label class="layer-option">
-            <input type="checkbox" class="layer-toggle" data-layer="shortlist" checked>
-            <span>Top-N Shortlist<small>Gold outlines highlight parcels included in current shortlist.</small></span>
-          </label>
-          <label class="layer-option">
-            <input type="checkbox" class="layer-toggle" data-layer="service" checked>
-            <span>Service Readiness<small>Blue markers for parcels with service readiness ≥ 0.75.</small></span>
-          </label>
-          <label class="layer-option">
-            <input type="checkbox" class="layer-toggle" data-layer="policy" checked>
-            <span>Policy Fit<small>Purple markers for parcels with policy alignment ≥ 0.75.</small></span>
-          </label>
-          <label class="layer-option">
-            <input type="checkbox" class="layer-toggle" data-layer="constraints" checked>
-            <span>Constraint Flags<small>Red markers for parcels with one or more constraints.</small></span>
-          </label>
-          <label class="layer-option">
-            <input type="checkbox" class="layer-toggle" data-layer="edge" checked>
-            <span>Residential Edge Sensitivity<small>Orange rings indicate political sensitivity radius bands.</small></span>
-          </label>
+    <div class="panel grid visual-grid">
+      <div>
+        <h2>Cadastral suitability map</h2>
+        <p>Attach a basemap image, then highlight parcel blocks by scenario standards. Click a parcel block for characteristics that rule it in/out.</p>
+        <label>
+          Basemap image URL (optional)
+          <input id="basemap-url" type="url" placeholder="https://.../map-image.png" autocomplete="off">
+        </label>
+        <div class="map-shell" id="map-shell" aria-label="Parcel suitability map">
+          <div class="map-background" id="map-background"></div>
+          <?php foreach ($mapRows as $mapRow): ?>
+            <?php
+                $classNames = ['parcel-block'];
+                if ($mapRow['eligible']) {
+                    $classNames[] = 'standard-eligible';
+                }
+                if ($mapRow['service_standard']) {
+                    $classNames[] = 'standard-service';
+                }
+                if ($mapRow['policy_standard']) {
+                    $classNames[] = 'standard-policy';
+                }
+                if ($mapRow['shortlist_standard']) {
+                    $classNames[] = 'standard-shortlist';
+                }
+            ?>
+            <button
+              type="button"
+              class="<?= htmlspecialchars(implode(' ', $classNames), ENT_QUOTES, 'UTF-8') ?>"
+              style="left: <?= (float) $mapRow['x'] ?>%; top: <?= (float) $mapRow['y'] ?>%; width: <?= (float) $mapRow['width'] ?>%; height: <?= (float) $mapRow['height'] ?>%;"
+              data-parcel='<?= htmlspecialchars((string) json_encode($mapRow, JSON_THROW_ON_ERROR), ENT_QUOTES, 'UTF-8') ?>'
+              aria-label="<?= htmlspecialchars((string) ($mapRow['parcel_id'] . ' in ' . $mapRow['location']), ENT_QUOTES, 'UTF-8') ?>"
+            >
+              <span class="parcel-label"><?= htmlspecialchars((string) $mapRow['parcel_id'], ENT_QUOTES, 'UTF-8') ?></span>
+            </button>
+          <?php endforeach; ?>
+          <div class="map-overlay" aria-hidden="true"></div>
+          <div class="map-caption">Blocks represent cadastral parcels in the scenario. Color edges indicate standards met; dimmed blocks are filtered out.</div>
         </div>
-        <div id="map" aria-label="Land parcel suitability map"></div>
       </div>
+      <div class="controls">
+        <h3>Standards</h3>
+        <label class="control-chip"><input type="checkbox" class="standard-filter" value="eligible" checked><span class="swatch swatch-eligible"></span>Eligible parcels</label>
+        <label class="control-chip"><input type="checkbox" class="standard-filter" value="service" checked><span class="swatch swatch-service"></span>Service readiness ≥ 0.75</label>
+        <label class="control-chip"><input type="checkbox" class="standard-filter" value="policy" checked><span class="swatch swatch-policy"></span>Policy fit ≥ 0.75</label>
+        <label class="control-chip"><input type="checkbox" class="standard-filter" value="shortlist" checked><span class="swatch swatch-shortlist"></span>Scenario shortlist (Top N)</label>
 
-      <div class="meta-grid" style="margin-top: 14px;">
-        <div class="details-card">
-          <h3>Selected parcel characteristics</h3>
-          <p id="selected-summary">Click a parcel on the map to inspect details.</p>
-          <ul id="selected-characteristics" class="characteristics"></ul>
-        </div>
-        <div class="details-card">
-          <h3>Scenario Criteria (Rule-in / Rule-out)</h3>
-          <ul class="characteristics">
-            <li>Parcel must meet scenario minimum size and constraint limits.</li>
-            <li>Eligible layer shows only parcels that pass mandatory checks.</li>
-            <li>Shortlist layer highlights top ranked parcels after scoring and risk penalty.</li>
-            <li>Service Readiness and Policy Fit layers are optional standards overlays.</li>
-            <li>Constraint and Residential Edge layers show caution factors for planning.</li>
-          </ul>
-        </div>
+        <h3>Selected parcel characteristics</h3>
+        <p id="selected-summary">Click a parcel block to view what rules it in or out.</p>
+        <ul id="selected-characteristics" class="characteristics"></ul>
       </div>
     </div>
 
@@ -340,55 +345,50 @@ function buildRuleNotes(array $row, array $scenario): array
       </table>
     </div>
 
-    <script id="map-data" type="application/json"><?= htmlspecialchars((string) json_encode($mapRows, JSON_THROW_ON_ERROR), ENT_QUOTES, 'UTF-8') ?></script>
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
     <script>
       (() => {
-        const dataElement = document.getElementById('map-data');
-        const rows = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
-        const map = L.map('map', { zoomControl: true }).setView([-32.061, 115.755], 13);
-
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; OpenStreetMap &copy; CARTO',
-          subdomains: 'abcd',
-          maxZoom: 20,
-        }).addTo(map);
-
+        const mapBackground = document.getElementById('map-background');
+        const basemapUrlInput = document.getElementById('basemap-url');
+        const blocks = Array.from(document.querySelectorAll('.parcel-block'));
+        const filters = Array.from(document.querySelectorAll('.standard-filter'));
         const selectedSummary = document.getElementById('selected-summary');
         const selectedCharacteristics = document.getElementById('selected-characteristics');
-        const toggles = Array.from(document.querySelectorAll('.layer-toggle'));
 
-        const layers = {
-          parcels: L.layerGroup().addTo(map),
-          eligible: L.layerGroup().addTo(map),
-          shortlist: L.layerGroup().addTo(map),
-          service: L.layerGroup().addTo(map),
-          policy: L.layerGroup().addTo(map),
-          constraints: L.layerGroup().addTo(map),
-          edge: L.layerGroup().addTo(map),
+        const defaultMapImage = 'https://tile.openstreetmap.org/13/14417/10211.png';
+        mapBackground.style.backgroundImage = `url(${defaultMapImage})`;
+
+        basemapUrlInput.addEventListener('change', () => {
+          const value = basemapUrlInput.value.trim();
+          mapBackground.style.backgroundImage = value === '' ? `url(${defaultMapImage})` : `url(${value})`;
+        });
+
+        const parseParcelData = (block) => {
+          const payload = block.getAttribute('data-parcel') || '{}';
+          try {
+            return JSON.parse(payload);
+          } catch (error) {
+            return {};
+          }
         };
 
-        const centroid = (coordinates) => {
-          const total = coordinates.reduce((acc, pair) => {
-            acc.lat += pair[0];
-            acc.lng += pair[1];
-            return acc;
-          }, { lat: 0, lng: 0 });
-
-          return [total.lat / coordinates.length, total.lng / coordinates.length];
+        const standardMatch = (parcel, standard) => {
+          if (standard === 'eligible') return Boolean(parcel.eligible);
+          if (standard === 'service') return Boolean(parcel.service_standard);
+          if (standard === 'policy') return Boolean(parcel.policy_standard);
+          if (standard === 'shortlist') return Boolean(parcel.shortlist_standard);
+          return true;
         };
 
-        const edgeRadius = (distanceToEdge) => {
-          if (distanceToEdge < 30) return 230;
-          if (distanceToEdge < 80) return 170;
-          return 110;
+        const refreshFilterState = () => {
+          const activeStandards = filters.filter((input) => input.checked).map((input) => input.value);
+          blocks.forEach((block) => {
+            const parcel = parseParcelData(block);
+            const visible = activeStandards.some((standard) => standardMatch(parcel, standard));
+            block.classList.toggle('dimmed', !visible);
+          });
         };
 
-        const renderDetails = (parcel) => {
+        const renderParcelDetails = (parcel) => {
           selectedSummary.textContent = `${parcel.parcel_id} · ${parcel.location} · Final score ${parcel.final_score}`;
           selectedCharacteristics.innerHTML = '';
           (parcel.rule_notes || []).forEach((note) => {
@@ -398,100 +398,22 @@ function buildRuleNotes(array $row, array $scenario): array
           });
         };
 
-        rows.forEach((parcel) => {
-          const polygon = L.polygon(parcel.coordinates, {
-            color: '#3a4658',
-            weight: 1,
-            fillColor: '#121a26',
-            fillOpacity: 0.35,
-          })
-            .bindTooltip(parcel.parcel_id, { direction: 'center', permanent: false, opacity: 0.7 })
-            .on('click', () => renderDetails(parcel));
-          polygon.addTo(layers.parcels);
-
-          if (parcel.eligible) {
-            L.polygon(parcel.coordinates, {
-              color: '#4fc3f7',
-              weight: 2,
-              fillColor: '#1b3f58',
-              fillOpacity: 0.28,
-            }).addTo(layers.eligible);
-          }
-
-          if (parcel.shortlist_standard) {
-            L.polygon(parcel.coordinates, {
-              color: '#ffd166',
-              weight: 3,
-              fillOpacity: 0,
-              dashArray: '6 4',
-            }).addTo(layers.shortlist);
-          }
-
-          const center = centroid(parcel.coordinates);
-          if (parcel.service_standard) {
-            L.circleMarker(center, {
-              radius: 8,
-              color: '#4fc3f7',
-              fillColor: '#4fc3f7',
-              fillOpacity: 0.6,
-              weight: 1.5,
-            }).bindTooltip(`${parcel.parcel_id}: service-ready`).addTo(layers.service);
-          }
-
-          if (parcel.policy_standard) {
-            L.circleMarker(center, {
-              radius: 6,
-              color: '#bb86fc',
-              fillColor: '#bb86fc',
-              fillOpacity: 0.65,
-              weight: 1.5,
-            }).bindTooltip(`${parcel.parcel_id}: policy-fit`).addTo(layers.policy);
-          }
-
-          if (parcel.constraints_present) {
-            L.circleMarker(center, {
-              radius: 5,
-              color: '#ff6b6b',
-              fillColor: '#ff6b6b',
-              fillOpacity: 0.75,
-              weight: 1,
-            }).bindTooltip(`${parcel.parcel_id}: constraints ${parcel.constraints.join(', ')}`).addTo(layers.constraints);
-          }
-
-          L.circle(center, {
-            radius: edgeRadius(parcel.distance_to_residential_edge_m),
-            color: '#ff9f43',
-            fillOpacity: 0,
-            weight: 1,
-            dashArray: '3 6',
-          }).bindTooltip(`${parcel.parcel_id}: edge ${parcel.distance_to_residential_edge_m}m`).addTo(layers.edge);
-        });
-
-        const toggleMap = {
-          eligible: layers.eligible,
-          shortlist: layers.shortlist,
-          service: layers.service,
-          policy: layers.policy,
-          constraints: layers.constraints,
-          edge: layers.edge,
-        };
-
-        toggles.forEach((toggle) => {
-          toggle.addEventListener('change', () => {
-            const layerName = toggle.dataset.layer;
-            const layer = toggleMap[layerName];
-            if (!layer) return;
-            if (toggle.checked) {
-              map.addLayer(layer);
-            } else {
-              map.removeLayer(layer);
-            }
+        blocks.forEach((block) => {
+          block.addEventListener('click', () => {
+            blocks.forEach((candidate) => candidate.classList.remove('is-active'));
+            block.classList.add('is-active');
+            const parcel = parseParcelData(block);
+            renderParcelDetails(parcel);
           });
         });
 
-        if (rows.length > 0) {
-          renderDetails(rows[0]);
-          map.fitBounds(L.featureGroup([layers.parcels]).getBounds().pad(0.25));
+        filters.forEach((filterInput) => {
+          filterInput.addEventListener('change', refreshFilterState);
+        });
+
+        refreshFilterState();
+        if (blocks.length > 0) {
+          blocks[0].click();
         }
       })();
     </script>
