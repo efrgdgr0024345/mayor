@@ -84,42 +84,52 @@ function buildRuleNotes(array $row, array $scenario): array
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LSIP - Land Suitability Intelligence Platform</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f6f7fb; color: #1d2330; }
+    body { font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif; margin: 0; background: #080c12; color: #d6dce8; }
     .container { max-width: 1200px; margin: 24px auto; padding: 0 16px 24px; }
-    .panel { background: #fff; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,.06); padding: 16px; margin-bottom: 16px; }
+    .panel { background: #0d131d; border: 1px solid #1c2533; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.35); padding: 16px; margin-bottom: 16px; }
     h1, h2, h3 { margin-top: 0; }
     form { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; }
     label { display: flex; flex-direction: column; font-size: 14px; gap: 6px; }
-    select, input, button { padding: 10px; border: 1px solid #cfd4e3; border-radius: 8px; font-size: 14px; }
-    button { background: #2f6fed; color: #fff; cursor: pointer; }
+    select, input, button { padding: 10px; border: 1px solid #2a3547; border-radius: 8px; font-size: 14px; background: #111a27; color: #d6dce8; }
+    button { background: #1f9ad2; color: #eaf8ff; cursor: pointer; }
     .grid { display: grid; gap: 16px; }
     .visual-grid { grid-template-columns: 2fr 1fr; align-items: start; }
     .map-shell {
       position: relative;
       min-height: 460px;
-      border: 1px solid #1f2738;
+      border: 1px solid #2a374c;
       border-radius: 12px;
       overflow: hidden;
-      background: radial-gradient(circle at 50% 20%, #182233, #0b1018 72%);
+      background: radial-gradient(circle at 50% 20%, #121a26, #090e15 72%);
     }
     .map-background {
       position: absolute;
       inset: 0;
       background-position: center;
       background-size: cover;
-      opacity: 0.42;
-      filter: contrast(1.1) saturate(0.35) brightness(0.9);
+      opacity: 0.55;
+      filter: contrast(1.08) saturate(0.2) brightness(0.72);
+    }
+    .map-vector-layer {
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(36deg, rgba(120, 132, 148, 0.1) 0px, rgba(120, 132, 148, 0.1) 1px, transparent 1px, transparent 34px),
+        repeating-linear-gradient(-50deg, rgba(84, 95, 112, 0.08) 0px, rgba(84, 95, 112, 0.08) 1px, transparent 1px, transparent 58px),
+        linear-gradient(180deg, rgba(17, 25, 35, 0.08), rgba(12, 17, 25, 0.35));
+      opacity: 0.55;
+      pointer-events: none;
     }
     .map-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(5, 9, 16, 0.2), rgba(5, 9, 16, 0.5));
+      background: linear-gradient(180deg, rgba(5, 9, 16, 0.3), rgba(5, 9, 16, 0.62));
       pointer-events: none;
     }
     .parcel-block {
       position: absolute;
-      border: 2px solid #8f97a9;
-      background: rgba(130, 138, 158, 0.12);
+      border: 1px solid #5e6d83;
+      background: rgba(122, 136, 160, 0.16);
       color: #fff;
       border-radius: 4px;
       cursor: pointer;
@@ -129,7 +139,7 @@ function buildRuleNotes(array $row, array $scenario): array
     .parcel-block:hover,
     .parcel-block.is-active {
       transform: translateY(-1px);
-      box-shadow: 0 0 0 2px rgba(255,255,255,.22), 0 8px 20px rgba(0,0,0,.35);
+      box-shadow: 0 0 0 1px rgba(124, 214, 255, 0.72), 0 0 18px rgba(79, 195, 247, 0.45), 0 8px 20px rgba(0,0,0,.35);
     }
     .parcel-label {
       position: absolute;
@@ -150,10 +160,10 @@ function buildRuleNotes(array $row, array $scenario): array
       left: 12px;
       right: 12px;
       bottom: 12px;
-      color: #cfd9ec;
+      color: #b8c3d8;
       font-size: 12px;
-      background: rgba(6, 10, 16, 0.65);
-      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(6, 10, 16, 0.72);
+      border: 1px solid rgba(94, 109, 131, 0.55);
       border-radius: 8px;
       padding: 8px 10px;
       backdrop-filter: blur(2px);
@@ -163,10 +173,10 @@ function buildRuleNotes(array $row, array $scenario): array
       display: flex;
       align-items: center;
       gap: 10px;
-      border: 1px solid #dce2ef;
+      border: 1px solid #2a3547;
       border-radius: 10px;
       padding: 8px 10px;
-      background: #fbfcff;
+      background: #111a27;
     }
     .swatch { width: 14px; height: 14px; border-radius: 3px; border: 2px solid transparent; }
     .swatch-eligible { border-color: #5ce18a; background: rgba(92, 225, 138, 0.24); }
@@ -176,12 +186,13 @@ function buildRuleNotes(array $row, array $scenario): array
     .characteristics { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
     .characteristics li { line-height: 1.35; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; border-bottom: 1px solid #ebedf4; text-align: left; vertical-align: top; }
+    th, td { padding: 10px; border-bottom: 1px solid #202b3a; text-align: left; vertical-align: top; }
     .score { font-weight: bold; }
     .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
-    .ok { background: #e9f9ef; color: #1c7d3a; }
-    .bad { background: #ffecec; color: #ba2d2d; }
-    .error { color: #ba2d2d; font-weight: 600; }
+    .ok { background: #153224; color: #8af0b2; }
+    .bad { background: #3a1a1a; color: #ff9898; }
+    .error { color: #ff9898; font-weight: 600; }
+    code { color: #9ed7ff; }
 
     @media (max-width: 960px) {
       .visual-grid { grid-template-columns: 1fr; }
@@ -261,6 +272,7 @@ function buildRuleNotes(array $row, array $scenario): array
         </label>
         <div class="map-shell" id="map-shell" aria-label="Parcel suitability map">
           <div class="map-background" id="map-background"></div>
+          <div class="map-vector-layer" aria-hidden="true"></div>
           <?php foreach ($mapRows as $mapRow): ?>
             <?php
                 $classNames = ['parcel-block'];
@@ -348,7 +360,7 @@ function buildRuleNotes(array $row, array $scenario): array
         const selectedSummary = document.getElementById('selected-summary');
         const selectedCharacteristics = document.getElementById('selected-characteristics');
 
-        const defaultMapImage = 'https://tile.openstreetmap.org/13/14417/10211.png';
+        const defaultMapImage = 'https://a.basemaps.cartocdn.com/dark_all/13/14417/10211.png';
         mapBackground.style.backgroundImage = `url(${defaultMapImage})`;
 
         basemapUrlInput.addEventListener('change', () => {
