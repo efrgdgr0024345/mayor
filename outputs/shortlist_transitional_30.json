@@ -1,255 +1,290 @@
 {
-  "scenario": {
-    "scenario_id": "transitional_30",
-    "name": "30-person transitional village",
-    "minimum_size_m2": 2000,
-    "weights": {
-      "planning_compatibility": 0.3,
-      "size_usability": 0.25,
-      "location_logic": 0.2,
-      "constraint_burden": 0.1,
-      "ownership_likelihood": 0.15
-    }
-  },
-  "shortlist": [
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-004",
-        "location": "Beaconsfield",
-        "size_m2": 3100,
-        "zoning": "Community Purpose",
-        "ownership_type": "public",
-        "constraints": [],
-        "distance_to_public_transport_m": 360,
-        "distance_to_health_service_m": 1200,
-        "distance_to_residential_edge_m": 140,
-        "policy_alignment_score": 0.88,
-        "service_readiness_score": 0.92
-      },
-      "eligible": true,
-      "eligibility_failures": [],
-      "component_scores": {
-        "planning_compatibility": 0.94,
-        "size_usability": 0.8875,
-        "location_logic": 0.7200000000000001,
-        "constraint_burden": 1.0,
-        "ownership_likelihood": 1.0
-      },
-      "weighted_score": 89.79,
-      "risk_penalty": 8.0,
-      "final_score": 81.79,
-      "explanation": [
-        "Strong planning compatibility"
-      ]
+    "scenario": {
+        "scenario_id": "transitional_30",
+        "name": "30-person transitional village",
+        "minimum_size_m2": 2000,
+        "weights": {
+            "planning_compatibility": 0.3,
+            "size_usability": 0.25,
+            "location_logic": 0.2,
+            "constraint_burden": 0.1,
+            "ownership_likelihood": 0.15
+        }
     },
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-002",
-        "location": "Fremantle CBD Fringe",
-        "size_m2": 2600,
-        "zoning": "Residential",
-        "ownership_type": "private",
-        "constraints": [
-          "heritage_buffer"
-        ],
-        "distance_to_public_transport_m": 80,
-        "distance_to_health_service_m": 600,
-        "distance_to_residential_edge_m": 20,
-        "policy_alignment_score": 0.76,
-        "service_readiness_score": 0.8
-      },
-      "eligible": true,
-      "eligibility_failures": [],
-      "component_scores": {
-        "planning_compatibility": 0.88,
-        "size_usability": 0.825,
-        "location_logic": 0.8400000000000002,
-        "constraint_burden": 0.8200000000000001,
-        "ownership_likelihood": 0.55
-      },
-      "weighted_score": 80.28,
-      "risk_penalty": 28.0,
-      "final_score": 52.28,
-      "explanation": [
-        "Strong planning compatibility",
-        "Elevated political sensitivity near residential edge"
-      ]
-    },
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-001",
-        "location": "North Fremantle",
-        "size_m2": 1800,
-        "zoning": "Mixed Use",
-        "ownership_type": "public",
-        "constraints": [
-          "flood_moderate"
-        ],
-        "distance_to_public_transport_m": 220,
-        "distance_to_health_service_m": 1500,
-        "distance_to_residential_edge_m": 70,
-        "policy_alignment_score": 0.9,
-        "service_readiness_score": 0.85
-      },
-      "eligible": false,
-      "eligibility_failures": [
-        "Parcel below minimum size"
-      ],
-      "component_scores": {
-        "planning_compatibility": 0.95,
-        "size_usability": 0.0,
-        "location_logic": 0.71,
-        "constraint_burden": 0.85,
-        "ownership_likelihood": 1.0
-      },
-      "weighted_score": 66.2,
-      "risk_penalty": 18.0,
-      "final_score": 0.0,
-      "explanation": [
-        "Strong planning compatibility",
-        "Site is near minimum size threshold"
-      ]
-    }
-  ],
-  "all_results": [
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-004",
-        "location": "Beaconsfield",
-        "size_m2": 3100,
-        "zoning": "Community Purpose",
-        "ownership_type": "public",
-        "constraints": [],
-        "distance_to_public_transport_m": 360,
-        "distance_to_health_service_m": 1200,
-        "distance_to_residential_edge_m": 140,
-        "policy_alignment_score": 0.88,
-        "service_readiness_score": 0.92
-      },
-      "eligible": true,
-      "eligibility_failures": [],
-      "component_scores": {
-        "planning_compatibility": 0.94,
-        "size_usability": 0.8875,
-        "location_logic": 0.7200000000000001,
-        "constraint_burden": 1.0,
-        "ownership_likelihood": 1.0
-      },
-      "weighted_score": 89.79,
-      "risk_penalty": 8.0,
-      "final_score": 81.79,
-      "explanation": [
-        "Strong planning compatibility"
-      ]
-    },
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-002",
-        "location": "Fremantle CBD Fringe",
-        "size_m2": 2600,
-        "zoning": "Residential",
-        "ownership_type": "private",
-        "constraints": [
-          "heritage_buffer"
-        ],
-        "distance_to_public_transport_m": 80,
-        "distance_to_health_service_m": 600,
-        "distance_to_residential_edge_m": 20,
-        "policy_alignment_score": 0.76,
-        "service_readiness_score": 0.8
-      },
-      "eligible": true,
-      "eligibility_failures": [],
-      "component_scores": {
-        "planning_compatibility": 0.88,
-        "size_usability": 0.825,
-        "location_logic": 0.8400000000000002,
-        "constraint_burden": 0.8200000000000001,
-        "ownership_likelihood": 0.55
-      },
-      "weighted_score": 80.28,
-      "risk_penalty": 28.0,
-      "final_score": 52.28,
-      "explanation": [
-        "Strong planning compatibility",
-        "Elevated political sensitivity near residential edge"
-      ]
-    },
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-001",
-        "location": "North Fremantle",
-        "size_m2": 1800,
-        "zoning": "Mixed Use",
-        "ownership_type": "public",
-        "constraints": [
-          "flood_moderate"
-        ],
-        "distance_to_public_transport_m": 220,
-        "distance_to_health_service_m": 1500,
-        "distance_to_residential_edge_m": 70,
-        "policy_alignment_score": 0.9,
-        "service_readiness_score": 0.85
-      },
-      "eligible": false,
-      "eligibility_failures": [
-        "Parcel below minimum size"
-      ],
-      "component_scores": {
-        "planning_compatibility": 0.95,
-        "size_usability": 0.0,
-        "location_logic": 0.71,
-        "constraint_burden": 0.85,
-        "ownership_likelihood": 1.0
-      },
-      "weighted_score": 66.2,
-      "risk_penalty": 18.0,
-      "final_score": 0.0,
-      "explanation": [
-        "Strong planning compatibility",
-        "Site is near minimum size threshold"
-      ]
-    },
-    {
-      "scenario_id": "transitional_30",
-      "parcel": {
-        "parcel_id": "FRE-003",
-        "location": "O'Connor",
-        "size_m2": 4200,
-        "zoning": "Light Industry",
-        "ownership_type": "public",
-        "constraints": [
-          "contamination_possible"
-        ],
-        "distance_to_public_transport_m": 540,
-        "distance_to_health_service_m": 2900,
-        "distance_to_residential_edge_m": 180,
-        "policy_alignment_score": 0.58,
-        "service_readiness_score": 0.62
-      },
-      "eligible": false,
-      "eligibility_failures": [
-        "Contains excluded constraints: contamination_possible"
-      ],
-      "component_scores": {
-        "planning_compatibility": 0.515,
-        "size_usability": 1.0,
-        "location_logic": 0.3711111111111111,
-        "constraint_burden": 0.55,
-        "ownership_likelihood": 1.0
-      },
-      "weighted_score": 68.37,
-      "risk_penalty": 8.0,
-      "final_score": 0.0,
-      "explanation": [
-        "Balanced profile across planning, size, and location factors"
-      ]
-    }
-  ]
+    "shortlist": [
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-004",
+                "location": "Beaconsfield",
+                "size_m2": 3100,
+                "zoning": "Community Purpose",
+                "ownership_type": "public",
+                "constraints": [],
+                "distance_to_public_transport_m": 360,
+                "distance_to_health_service_m": 1200,
+                "distance_to_residential_edge_m": 140,
+                "policy_alignment_score": 0.88,
+                "service_readiness_score": 0.92
+            },
+            "eligible": true,
+            "eligibility_failures": [],
+            "component_scores": {
+                "planning_compatibility": 0.94,
+                "size_usability": 0.8875,
+                "location_logic": 0.7200000000000001,
+                "constraint_burden": 1,
+                "ownership_likelihood": 1
+            },
+            "weighted_score": 89.79,
+            "risk_penalty": 8,
+            "final_score": 81.79,
+            "explanation": [
+                "Strong planning compatibility"
+            ]
+        },
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-002",
+                "location": "Fremantle CBD Fringe",
+                "size_m2": 2600,
+                "zoning": "Residential",
+                "ownership_type": "private",
+                "constraints": [
+                    "heritage_buffer"
+                ],
+                "distance_to_public_transport_m": 80,
+                "distance_to_health_service_m": 600,
+                "distance_to_residential_edge_m": 20,
+                "policy_alignment_score": 0.76,
+                "service_readiness_score": 0.8
+            },
+            "eligible": true,
+            "eligibility_failures": [],
+            "component_scores": {
+                "planning_compatibility": 0.88,
+                "size_usability": 0.825,
+                "location_logic": 0.8400000000000002,
+                "constraint_burden": 0.8200000000000001,
+                "ownership_likelihood": 0.55
+            },
+            "weighted_score": 80.28,
+            "risk_penalty": 28,
+            "final_score": 52.28,
+            "explanation": [
+                "Strong planning compatibility",
+                "Elevated political sensitivity near residential edge"
+            ]
+        },
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-001",
+                "location": "North Fremantle",
+                "size_m2": 1800,
+                "zoning": "Mixed Use",
+                "ownership_type": "public",
+                "constraints": [
+                    "flood_moderate"
+                ],
+                "distance_to_public_transport_m": 220,
+                "distance_to_health_service_m": 1500,
+                "distance_to_residential_edge_m": 70,
+                "policy_alignment_score": 0.9,
+                "service_readiness_score": 0.85
+            },
+            "eligible": false,
+            "eligibility_failures": [
+                "Parcel below minimum size"
+            ],
+            "component_scores": {
+                "planning_compatibility": 0.95,
+                "size_usability": 0,
+                "location_logic": 0.71,
+                "constraint_burden": 0.85,
+                "ownership_likelihood": 1
+            },
+            "weighted_score": 66.2,
+            "risk_penalty": 18,
+            "final_score": 0,
+            "explanation": [
+                "Strong planning compatibility",
+                "Site is near minimum size threshold"
+            ]
+        },
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-003",
+                "location": "O'Connor",
+                "size_m2": 4200,
+                "zoning": "Light Industry",
+                "ownership_type": "public",
+                "constraints": [
+                    "contamination_possible"
+                ],
+                "distance_to_public_transport_m": 540,
+                "distance_to_health_service_m": 2900,
+                "distance_to_residential_edge_m": 180,
+                "policy_alignment_score": 0.58,
+                "service_readiness_score": 0.62
+            },
+            "eligible": false,
+            "eligibility_failures": [
+                "Contains excluded constraints: contamination_possible"
+            ],
+            "component_scores": {
+                "planning_compatibility": 0.515,
+                "size_usability": 1,
+                "location_logic": 0.3711111111111111,
+                "constraint_burden": 0.55,
+                "ownership_likelihood": 1
+            },
+            "weighted_score": 68.37,
+            "risk_penalty": 8,
+            "final_score": 0,
+            "explanation": [
+                "Balanced profile across planning, size, and location factors"
+            ]
+        }
+    ],
+    "all_results": [
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-004",
+                "location": "Beaconsfield",
+                "size_m2": 3100,
+                "zoning": "Community Purpose",
+                "ownership_type": "public",
+                "constraints": [],
+                "distance_to_public_transport_m": 360,
+                "distance_to_health_service_m": 1200,
+                "distance_to_residential_edge_m": 140,
+                "policy_alignment_score": 0.88,
+                "service_readiness_score": 0.92
+            },
+            "eligible": true,
+            "eligibility_failures": [],
+            "component_scores": {
+                "planning_compatibility": 0.94,
+                "size_usability": 0.8875,
+                "location_logic": 0.7200000000000001,
+                "constraint_burden": 1,
+                "ownership_likelihood": 1
+            },
+            "weighted_score": 89.79,
+            "risk_penalty": 8,
+            "final_score": 81.79,
+            "explanation": [
+                "Strong planning compatibility"
+            ]
+        },
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-002",
+                "location": "Fremantle CBD Fringe",
+                "size_m2": 2600,
+                "zoning": "Residential",
+                "ownership_type": "private",
+                "constraints": [
+                    "heritage_buffer"
+                ],
+                "distance_to_public_transport_m": 80,
+                "distance_to_health_service_m": 600,
+                "distance_to_residential_edge_m": 20,
+                "policy_alignment_score": 0.76,
+                "service_readiness_score": 0.8
+            },
+            "eligible": true,
+            "eligibility_failures": [],
+            "component_scores": {
+                "planning_compatibility": 0.88,
+                "size_usability": 0.825,
+                "location_logic": 0.8400000000000002,
+                "constraint_burden": 0.8200000000000001,
+                "ownership_likelihood": 0.55
+            },
+            "weighted_score": 80.28,
+            "risk_penalty": 28,
+            "final_score": 52.28,
+            "explanation": [
+                "Strong planning compatibility",
+                "Elevated political sensitivity near residential edge"
+            ]
+        },
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-001",
+                "location": "North Fremantle",
+                "size_m2": 1800,
+                "zoning": "Mixed Use",
+                "ownership_type": "public",
+                "constraints": [
+                    "flood_moderate"
+                ],
+                "distance_to_public_transport_m": 220,
+                "distance_to_health_service_m": 1500,
+                "distance_to_residential_edge_m": 70,
+                "policy_alignment_score": 0.9,
+                "service_readiness_score": 0.85
+            },
+            "eligible": false,
+            "eligibility_failures": [
+                "Parcel below minimum size"
+            ],
+            "component_scores": {
+                "planning_compatibility": 0.95,
+                "size_usability": 0,
+                "location_logic": 0.71,
+                "constraint_burden": 0.85,
+                "ownership_likelihood": 1
+            },
+            "weighted_score": 66.2,
+            "risk_penalty": 18,
+            "final_score": 0,
+            "explanation": [
+                "Strong planning compatibility",
+                "Site is near minimum size threshold"
+            ]
+        },
+        {
+            "scenario_id": "transitional_30",
+            "parcel": {
+                "parcel_id": "FRE-003",
+                "location": "O'Connor",
+                "size_m2": 4200,
+                "zoning": "Light Industry",
+                "ownership_type": "public",
+                "constraints": [
+                    "contamination_possible"
+                ],
+                "distance_to_public_transport_m": 540,
+                "distance_to_health_service_m": 2900,
+                "distance_to_residential_edge_m": 180,
+                "policy_alignment_score": 0.58,
+                "service_readiness_score": 0.62
+            },
+            "eligible": false,
+            "eligibility_failures": [
+                "Contains excluded constraints: contamination_possible"
+            ],
+            "component_scores": {
+                "planning_compatibility": 0.515,
+                "size_usability": 1,
+                "location_logic": 0.3711111111111111,
+                "constraint_burden": 0.55,
+                "ownership_likelihood": 1
+            },
+            "weighted_score": 68.37,
+            "risk_penalty": 8,
+            "final_score": 0,
+            "explanation": [
+                "Balanced profile across planning, size, and location factors"
+            ]
+        }
+    ]
 }

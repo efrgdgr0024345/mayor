@@ -1,52 +1,59 @@
 # mayor
 
-## Land Suitability Intelligence Platform (LSIP) — JSON-first MVP
+## Land Suitability Intelligence Platform (LSIP) — cPanel-ready PHP MVP
 
-This repository now contains a database-free starter implementation of the LSIP vision.
-All data-model details are stored in JSON files so the scoring engine can run without setting up Postgres, PostGIS, or any external database.
+This project now runs as a plain **PHP + HTML** application that works on typical cPanel shared hosting.
+All parcel, scenario, and rule definitions are stored in JSON files (no database required yet).
+
+## Stack
+
+- PHP 8+
+- HTML/CSS (no frontend framework)
+- JSON files as the storage layer
 
 ## Project layout
 
-- `data/parcels.json` — parcel-level dataset (mock Fremantle pilot input)
-- `data/scenarios.json` — scenario definitions and suitability weights
-- `data/risk_rules.json` — ownership, constraint, and political sensitivity rules
-- `lsip/models.py` — parcel/scenario data models
-- `lsip/data_store.py` — JSON data access layer
-- `lsip/scoring.py` — eligibility checks + scoring + explanation logic
-- `lsip/main.py` — CLI entry point to generate scenario shortlists
-- `outputs/` — generated shortlist JSON files
+- `index.php` — main dashboard UI for running scenario rankings
+- `api/shortlist.php` — JSON API endpoint for shortlist generation
+- `app/JsonDataStore.php` — JSON loader for parcels/scenarios/risk rules
+- `app/SuitabilityEngine.php` — eligibility, scoring, risk penalty, explanation logic
+- `scripts/generate_shortlist.php` — CLI helper to generate `outputs/*.json`
+- `data/parcels.json` — parcel-level dataset
+- `data/scenarios.json` — scenario definitions and weights
+- `data/risk_rules.json` — ownership, constraint, political sensitivity rules
+- `outputs/` — generated shortlist files
 
-## Run
+## Run locally (PHP built-in server)
 
 ```bash
-python -m lsip.main --scenario-id transitional_30 --top-n 10
+php -S 127.0.0.1:8000
 ```
 
-Optional flags:
+Open:
 
-- `--data-dir` (default: `data`)
-- `--output-dir` (default: `outputs`)
-- `--scenario-id` (default: `transitional_30`)
-- `--top-n` (default: `10`)
+- Dashboard: `http://127.0.0.1:8000/index.php`
+- API: `http://127.0.0.1:8000/api/shortlist.php?scenario_id=transitional_30&top_n=10`
 
-## Example output
+## Generate shortlist file via CLI
 
-Running the CLI writes a file like:
+```bash
+php scripts/generate_shortlist.php transitional_30 10
+```
+
+This writes:
 
 - `outputs/shortlist_transitional_30.json`
 
-Each result includes:
+## cPanel deployment notes
 
-- eligibility status + failure reasons
-- component scores (planning, size, location, constraints, ownership)
-- risk penalty
-- final score
-- explanation bullets ("Why this site?")
+1. Upload repository contents into your domain document root (or subfolder).
+2. Ensure `index.php` is in the served path.
+3. Confirm PHP 8+ is selected in cPanel.
+4. Ensure the web user can write to `outputs/` if you plan to generate files on-server.
+5. No database setup is required for this MVP.
 
-## Next build step
+## Next step (when ready for DB)
 
-When ready to move past JSON files:
-
-1. Keep JSON schemas stable.
-2. Replace `JsonDataStore` with a repository abstraction backed by a real datastore.
-3. Keep the scoring engine unchanged so validation remains consistent across storage backends.
+- Keep JSON schema contracts stable.
+- Replace `JsonDataStore` internals with DB-backed reads.
+- Keep `SuitabilityEngine` unchanged so scoring remains consistent.
