@@ -1,0 +1,54 @@
+[
+  {
+    "parcel_id": "FRE-001",
+    "location": "North Fremantle",
+    "size_m2": 1800,
+    "zoning": "Mixed Use",
+    "ownership_type": "public",
+    "constraints": ["flood_moderate"],
+    "distance_to_public_transport_m": 220,
+    "distance_to_health_service_m": 1500,
+    "distance_to_residential_edge_m": 70,
+    "policy_alignment_score": 0.9,
+    "service_readiness_score": 0.85
+  },
+  {
+    "parcel_id": "FRE-002",
+    "location": "Fremantle CBD Fringe",
+    "size_m2": 2600,
+    "zoning": "Residential",
+    "ownership_type": "private",
+    "constraints": ["heritage_buffer"],
+    "distance_to_public_transport_m": 80,
+    "distance_to_health_service_m": 600,
+    "distance_to_residential_edge_m": 20,
+    "policy_alignment_score": 0.76,
+    "service_readiness_score": 0.8
+  },
+  {
+    "parcel_id": "FRE-003",
+    "location": "O'Connor",
+    "size_m2": 4200,
+    "zoning": "Light Industry",
+    "ownership_type": "public",
+    "constraints": ["contamination_possible"],
+    "distance_to_public_transport_m": 540,
+    "distance_to_health_service_m": 2900,
+    "distance_to_residential_edge_m": 180,
+    "policy_alignment_score": 0.58,
+    "service_readiness_score": 0.62
+  },
+  {
+    "parcel_id": "FRE-004",
+    "location": "Beaconsfield",
+    "size_m2": 3100,
+    "zoning": "Community Purpose",
+    "ownership_type": "public",
+    "constraints": [],
+    "distance_to_public_transport_m": 360,
+    "distance_to_health_service_m": 1200,
+    "distance_to_residential_edge_m": 140,
+    "policy_alignment_score": 0.88,
+    "service_readiness_score": 0.92
+  }
+]
